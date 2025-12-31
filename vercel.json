@@ -3,13 +3,12 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
+
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/micro-actions", "destination": "/micro-actions.html" },
-    
+
     { "source": "/battle-register", "destination": "/battle-register.html" },
     { "source": "/circle-pod", "destination": "/circle-pod.html" },
-
-    { "source": "/tiers/:tiers", "destination": "/tiers/:tiers.html" },
 
     { "source": "/payment", "destination": "/payment.html" },
     { "source": "/payment-confirm", "destination": "/payment-confirm.html" }

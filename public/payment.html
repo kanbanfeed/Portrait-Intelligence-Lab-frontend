@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment - Portrait Intelligence Lab™</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<div class="payment-hero">
+  <div class="container">
+    <h1>Complete Your Purchase</h1>
+    <p id="tier-info" style="font-size:1.25rem;margin-top:1rem;">
+      Processing your tier selection…
+    </p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card" style="max-width:600px;margin:-3rem auto 2rem;">
+    <div class="payment-section" style="background:transparent;">
+      <div style="text-align:center;margin-bottom:2rem;">
+        <div style="font-size:3rem;">💳</div>
+        <h2>Secure Payment via Stripe</h2>
+        <p style="color:var(--text-light);">
+          Card payments processed securely by Stripe
+        </p>
+      </div>
+
+      <div style="text-align:center;margin:2rem 0;">
+        <button id="stripe-btn" class="payment-btn-razorpay-single">
+          🔒 Pay with Stripe
+        </button>
+      </div>
+
+      <div style="background:var(--light);padding:1.5rem;border-radius:0.5rem;">
+        <div style="display:flex;justify-content:space-between;">
+          <span>Tier:</span>
+          <strong id="tier-name-display"></strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:0.5rem;">
+          <span>Amount:</span>
+          <strong id="tier-price-display"></strong>
+        </div>
+      </div>
+
+      <p style="font-size:0.85rem;margin-top:1.5rem;text-align:center;">
+        🔐 Payments are encrypted and PCI-compliant
+      </p>
+    </div>
+
+    <div style="text-align:center;margin-top:1.5rem;">
+      <a href="/" class="btn btn-secondary" style="background: #f59e0b">Cancel</a>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/supabase.js"></script>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const tier = params.get("tier");
+
+document.getElementById("stripe-btn").addEventListener("click", async () => {
+  const btn = document.getElementById("stripe-btn");
+  btn.disabled = true;
+  btn.textContent = "Redirecting…";
+
+  // ✅ GET LOGGED-IN USER
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    alert("Please login first");
+    btn.disabled = false;
+    btn.textContent = "🔒 Pay with Stripe";
+    return;
+  }
+
+  try {
+    const res = await fetch("https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        tier,
+        supabaseUserId: user.id   // 🔥 THIS FIXES EVERYTHING
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error("No checkout URL");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Unable to start payment");
+    btn.disabled = false;
+    btn.textContent = "🔒 Pay with Stripe";
+  }
+});
+</script>
+
+<!-- 
+<script>
+const params = new URLSearchParams(window.location.search);
+const tier = params.get("tier");
+
+const tiers = {
+  "9.99": { name: "Starter Tier", price: "$9.99" },
+  "19.99": { name: "Professional Tier", price: "$19.99" },
+  "199": { name: "Access Pass", price: "$199" },
+  "999": { name: "Elite Challenge", price: "$999" },
+  "9999": { name: "The Circle", price: "$9,999" }
+};
+
+if (!tiers[tier]) {
+  document.getElementById("tier-info").textContent = "Invalid tier";
+} else {
+  document.getElementById("tier-info").textContent =
+    `You're purchasing: ${tiers[tier].name}`;
+  document.getElementById("tier-name-display").textContent = tiers[tier].name;
+  document.getElementById("tier-price-display").textContent = tiers[tier].price;
+}
+
+document.getElementById("stripe-btn").addEventListener("click", async () => {
+  const btn = document.getElementById("stripe-btn");
+  btn.disabled = true;
+  btn.textContent = "Redirecting…";
+
+  try {
+    const res = await fetch("https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tier })
+    });
+
+    const data = await res.json();
+
+    // ✅ ALREADY PURCHASED
+    if (data.error === "Tier already purchased") {
+      alert("You have already purchased this tier.");
+      btn.disabled = false;
+      btn.textContent = "🔒 Pay with Stripe";
+      return;
+    }
+
+    // ✅ SUCCESS
+    if (data.url) {
+      window.location.href = data.url;
+      return;
+    }
+
+    // ❌ FALLBACK
+    alert("Unable to start payment. Please try again.");
+    btn.disabled = false;
+    btn.textContent = "🔒 Pay with Stripe";
+
+  } catch (err) {
+    alert("Network error. Please try again.");
+    btn.disabled = false;
+    btn.textContent = "🔒 Pay with Stripe";
+  }
+});
+
+</script> -->
+<script src="/js/layout.js"></script>
+<script src="/js/header-auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="/js/main.js"></script>
+
+
+</body>
+</html>

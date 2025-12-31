@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battle Registration - Portrait Intelligence Lab™</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+ <div id="header-placeholder"></div>
+
+<div class="battle-page">
+    <div class="container">
+        <div class="card">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--dark);">Battle Registration</h1>
+            <p style="color: var(--text-light); margin-bottom: 2rem;">
+                Register to participate in skill battles. Your division will be automatically selected based on your current tier.
+            </p>
+
+            <div id="eligibility-check" class="hidden">
+                <div class="alert alert-warning">
+                    <strong>Not Eligible:</strong> You need Access Pass ($199) or higher to participate in battles.
+                    <a href="/tier/199" style="margin-left: 1rem; color: var(--primary);">View Access Pass</a>
+                </div>
+            </div>
+
+            <form id="battle-form" class="battle-form">
+                <div class="form-group">
+                    <label class="form-label">Your Name</label>
+                    <input type="text" class="form-input" id="battle-name" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Division</label>
+                    <div class="division-selector" id="division-selector">
+                        <label class="division-option">
+                            <input type="radio" name="division" value="free" id="div-free">
+                            <div>Free</div>
+                        </label>
+                        <label class="division-option">
+                            <input type="radio" name="division" value="access" id="div-access">
+                            <div>Access</div>
+                        </label>
+                        <label class="division-option">
+                            <input type="radio" name="division" value="elite" id="div-elite">
+                            <div>Elite</div>
+                        </label>
+                        <label class="division-option">
+                            <input type="radio" name="division" value="circle" id="div-circle">
+                            <div>Circle</div>
+                        </label>
+                    </div>
+                    <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 0.5rem;">
+                        Your division will be auto-selected based on your tier.
+                    </p>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large btn-block">Register for Battle</button>
+                <a href="/dashboard" class="btn btn-secondary btn-large btn-block mt-3" style="margin-top: 1rem;">Go to Dashboard</a>
+            </form>
+
+            <div id="success-message" class="hidden">
+                <div class="success-message">
+                    <div class="success-icon">✓</div>
+                    <h2>You're Registered!</h2>
+                    <p style="font-size: 1.125rem; margin-top: 1rem;" id="success-details"></p>
+                    <div class="action-group-mobile" style="margin-top: 2rem;">
+                        <a href="/dashboard" class="btn btn-primary btn-large">View Dashboard</a>
+                        <a href="/" class="btn btn-secondary btn-large">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="/js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/supabase.js"></script>
+
+<script>
+async function loadBattlePage() {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    showNotEligible("Login required to register for battles");
+    return;
+  }
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("tier")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !profile) {
+    console.error("Battle page error:", error);
+    showNotEligible("Unable to verify tier");
+    return;
+  }
+
+  // ✅ FIX: Standardize to array and check for eligible tiers
+  const userTiers = Array.isArray(profile.tier) ? profile.tier : [profile.tier];
+  const eligibleTiers = ["199", "999", "9999"];
+  
+  // Check if ANY of the user's tiers are in the eligible list
+  const isEligible = userTiers.some(t => eligibleTiers.includes(t));
+
+  if (!isEligible) {
+    showNotEligible("You need Access Pass ($199) or higher to participate.");
+    return;
+  }
+
+  // ✅ Eligible — show form
+  document.getElementById("eligibility-check").classList.add("hidden");
+  document.getElementById("battle-form").classList.remove("hidden");
+
+  // ✅ Auto-select highest division available
+  let division = "free";
+  if (userTiers.includes("9999")) division = "circle";
+  else if (userTiers.includes("999")) division = "elite";
+  else if (userTiers.includes("199")) division = "access";
+
+  const radio = document.getElementById(`div-${division}`);
+  if (radio) {
+    radio.checked = true;
+    radio.closest(".division-option").classList.add("selected");
+  }
+
+  // Radio styling logic
+  document.querySelectorAll('.division-option input[type="radio"]').forEach(radio => {
+    radio.addEventListener("change", e => {
+      document.querySelectorAll(".division-option").forEach(opt =>
+        opt.classList.remove("selected")
+      );
+      e.target.closest(".division-option").classList.add("selected");
+    });
+  });
+
+  // ✅ Submit Logic
+  document.getElementById("battle-form").addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const name = document.getElementById("battle-name").value.trim();
+    if (!name) {
+      alert("Please enter your name");
+      return;
+    }
+
+    const sessionData = await supabase.auth.getSession();
+    const accessToken = sessionData.data.session.access_token;
+
+    const res = await fetch("/api/battle/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ name })
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      document.getElementById("battle-form").classList.add("hidden");
+      document.getElementById("success-message").classList.remove("hidden");
+      document.getElementById("success-details").textContent =
+        `Registered successfully in ${result.division} division. Total battles joined: ${result.battleCount}`;
+    } else {
+      alert("Registration failed");
+    }
+  });
+}
+
+function showNotEligible(message) {
+  document.getElementById("eligibility-check").classList.remove("hidden");
+  document.getElementById("battle-form").classList.add("hidden");
+  const alertText = document.querySelector("#eligibility-check strong");
+  if (alertText && alertText.nextSibling) {
+    alertText.nextSibling.textContent = " " + message;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadBattlePage);
+</script>
+
+ <div id="footer-placeholder"></div>
+
+
+<script src="/js/layout.js"></script>
+<script src="/js/header-auth.js"></script>
+<script src="/js/main.js"></script>
+
+</body>
+</html>

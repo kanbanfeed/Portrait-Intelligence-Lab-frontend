@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Portrait Intelligence Lab™</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body>
+  <!-- Header -->
+  <div id="header-placeholder"></div>
+
+  <!-- Main -->
+  <div class="container">
+    <h1 style="font-size: 2.5rem; margin: 2rem 0; color: var(--dark);">
+      Your Dashboard
+    </h1>
+
+    <div class="dashboard-grid">
+
+      <!-- Current Tier -->
+      <div class="dashboard-card">
+        <h3>✔ Your Current Tier</h3>
+        <div class="status-value" id="current-tier">Loading...</div>
+        <div class="status-description" id="tier-description">
+          Checking your tier status...
+        </div>
+
+        <div class="card-actions">
+          <a href="/" class="btn btn-primary btn-card">View All Tiers</a>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="dashboard-card">
+        <h3>✔ Your Progress</h3>
+        <div class="status-value" id="progress-value">0%</div>
+        <div class="status-description">Micro-actions completed</div>
+
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <a href="/micro-actions" class="btn btn-primary btn-card">
+            View Micro-Actions
+          </a>
+        </div>
+      </div>
+
+      <!-- Battles -->
+      <div class="dashboard-card">
+        <h3>✔ Battles</h3>
+        <div class="status-value" id="battle-status">Checking...</div>
+        <div class="status-description" id="battle-description"></div>
+
+        <div class="card-actions">
+          <a href="/battle/register" class="btn btn-primary btn-card">
+            Register for Battle
+          </a>
+        </div>
+      </div>
+
+      <!-- Circle -->
+      <div class="dashboard-card">
+        <h3>✔ Circle Status</h3>
+        <div class="status-value" id="circle-status">Checking...</div>
+        <div class="status-description" id="circle-description"></div>
+
+        <div id="circle-actions" class="card-actions"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div id="footer-placeholder"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/supabase.js"></script>
+<script src="/js/layout.js"></script>
+<script src="/js/header-auth.js"></script>
+<script>
+const TIER_NAME_MAP = {
+  "free": "Free Tier",
+  "9.99": "Starter Tier",
+  "19.99": "Professional Tier",
+  "199": "Access Pass",
+  "999": "Elite Challenge",
+  "9999": "The Circle"
+};
+
+// Define order for "Highest Tier" calculation
+const TIER_ORDER = ["free", "9.99", "19.99", "199", "999", "9999"];
+
+async function loadDashboard() {
+  const { data: { user } } = await supabase.auth.getUser();
+  let progress = 0;
+
+  /* =========================
+      👥 GUEST USER
+  ========================== */
+  if (!user) {
+    document.getElementById("current-tier").textContent = "Free Tier";
+    document.getElementById("tier-description").innerHTML = "Login to unlock premium features";
+    
+    // Default locked states
+    document.getElementById("battle-status").textContent = "Locked";
+    document.getElementById("circle-status").textContent = "Not a Member";
+    
+    // Guest progress
+    const guestActions = localStorage.getItem("guest_micro_actions");
+    if (guestActions) {
+      const actions = JSON.parse(guestActions);
+      progress = Math.round((actions.filter(Boolean).length / actions.length) * 100);
+    }
+    updateUIProgress(progress);
+    return;
+  }
+
+  /* =========================
+      👤 LOGGED-IN USER
+  ========================== */
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("tier, micro_progress, pod_id, battle_count")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !profile) return console.error("Dashboard error:", error);
+
+  // 1. Calculate Highest Tier and Purchased List
+  // Ensure tier is treated as an array even if database hasn't migrated yet
+  const userTiers = Array.isArray(profile.tier) ? profile.tier : [profile.tier];
+  
+  // Find highest tier based on TIER_ORDER
+  const highestTier = userTiers.reduce((prev, curr) => 
+    TIER_ORDER.indexOf(curr) > TIER_ORDER.indexOf(prev) ? curr : prev
+  , "free");
+
+  // Update Main Heading
+  document.getElementById("current-tier").textContent = TIER_NAME_MAP[highestTier] || highestTier;
+
+  // Update Sub-list of all tiers
+  const tierDesc = document.getElementById("tier-description");
+  tierDesc.innerHTML = `<p style="margin-bottom:0.5rem;">You have access to ${userTiers.length} tier(s):</p>`;
+  
+  userTiers.forEach(t => {
+    const name = TIER_NAME_MAP[t] || t;
+    tierDesc.innerHTML += `<div style="color:var(--success); font-weight:600; margin-top:0.2rem;">✓ ${name}</div>`;
+  });
+
+  // 2. Progress UI
+  updateUIProgress(profile.micro_progress || 0);
+
+  // 3. Battles UI
+  const hasPaidTier = userTiers.some(t => ["199", "999", "9999"].includes(t));
+  const battleCount = profile.battle_count || 0;
+
+  if (hasPaidTier) {
+    document.getElementById("battle-status").textContent = battleCount > 0 ? `${battleCount} Joined` : "Eligible";
+    document.getElementById("battle-status").style.color = "var(--success)";
+    document.getElementById("battle-description").textContent = "You can register for battles";
+  } else {
+    document.getElementById("battle-status").textContent = "Locked";
+    document.getElementById("battle-description").textContent = "Upgrade to Access Pass or higher";
+  }
+
+  // 4. Circle UI
+  const isCircle = userTiers.includes("9999");
+  if (isCircle) {
+    document.getElementById("circle-status").textContent = "Member";
+    document.getElementById("circle-description").textContent = "Welcome to The Circle";
+    document.getElementById("circle-actions").innerHTML = profile.pod_id
+      ? `<span class="badge badge-info">Pod: ${profile.pod_id}</span>`
+      : `<a href="/circle/pod" class="btn btn-primary btn-card">Join Your Pod</a>`;
+  } else {
+    document.getElementById("circle-status").textContent = "Not a Member";
+    document.getElementById("circle-actions").innerHTML = 
+      `<a href="/tier/9999" class="btn btn-primary btn-card">Learn About The Circle</a>`;
+  }
+}
+
+function updateUIProgress(val) {
+  document.getElementById("progress-value").textContent = `${val}%`;
+  document.getElementById("progress-bar").style.width = `${val}%`;
+}
+
+document.addEventListener("DOMContentLoaded", loadDashboard);
+</script>
+
+<script src="/js/main.js"></script>
+
+
+</body>
+</html>

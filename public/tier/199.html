@@ -79,79 +79,102 @@ document.addEventListener("DOMContentLoaded", async () => {
   const btn = document.getElementById("purchase-btn");
   if (!btn) return;
 
-  const TIER_CODE = "199"; // Unique code for this page
+  const TIER_CODE = "199"; // 🔁 Change per tier page
 
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    /* ======================
+        GET LOGGED-IN USER
+    ====================== */
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  /* ======================
-      NOT LOGGED IN
-  ====================== */
-  if (!user) {
-    btn.textContent = "Login & Join";
-    btn.onclick = () => {
-      window.location.href = "/auth/login.html";
-    };
-    return;
-  }
-
-  /* ======================
-      CHECK USER PROFILE
-  ====================== */
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("tier")
-    .eq("id", user.id)
-    .single();
-
-  if (error) {
-    console.error("Profile error:", error);
-    return;
-  }
-
-  // ✅ FIX: Handle tier as an array
-  // Check if the current TIER_CODE exists anywhere in the user's purchased tiers
-  const userTiers = Array.isArray(profile.tier) ? profile.tier : [profile.tier];
-  const hasPurchased = userTiers.includes(TIER_CODE);
-
-  if (hasPurchased) {
-    btn.textContent = "Already Purchased";
-    btn.classList.remove("btn-success");
-    btn.classList.add("btn-secondary"); // Changes color to Orange as requested
-    btn.disabled = true;
-    btn.style.opacity = "0.7";
-    btn.style.cursor = "not-allowed";
-    return;
-  }
-
-  /* ======================
-      PURCHASE LOGIC
-  ====================== */
-  btn.onclick = async () => {
-    btn.disabled = true;
-    btn.textContent = "Redirecting…";
-
-    try {
-      const res = await fetch("https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tier: TIER_CODE,
-          supabaseUserId: user.id
-        })
-      });
-
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL");
-      }
-    } catch (err) {
-      console.error(err);
-      btn.textContent = "Try Again";
-      btn.disabled = false;
+    /* ======================
+        NOT LOGGED IN
+    ====================== */
+    if (!user || authError) {
+      btn.textContent = "Login & Join";
+      btn.onclick = () => {
+        window.location.href = "/auth/login.html";
+      };
+      return;
     }
-  };
+
+    /* ======================
+        FETCH USER PROFILE
+    ====================== */
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("tier")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) {
+      console.error("❌ Profile fetch error:", profileError);
+      btn.textContent = "Error loading profile";
+      btn.disabled = true;
+      return;
+    }
+
+    /* ======================
+        CHECK EXISTING TIERS
+    ====================== */
+    const userTiers = Array.isArray(profile.tier)
+      ? profile.tier
+      : [profile.tier || "free"];
+
+    if (userTiers.includes(TIER_CODE)) {
+      btn.textContent = "Already Purchased";
+      btn.disabled = true;
+      btn.classList.remove("btn-success");
+      btn.classList.add("btn-secondary");
+      btn.style.opacity = "0.7";
+      btn.style.cursor = "not-allowed";
+      return;
+    }
+
+    /* ======================
+        PURCHASE HANDLER
+    ====================== */
+    btn.onclick = async () => {
+      btn.disabled = true;
+      btn.textContent = "Redirecting…";
+
+      try {
+        const res = await fetch(
+          "https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tier: TIER_CODE,
+              supabaseUserId: user.id
+            })
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Checkout request failed");
+        }
+
+        const data = await res.json();
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error("No checkout URL returned");
+        }
+
+      } catch (err) {
+        console.error("❌ Checkout error:", err);
+        btn.textContent = "Try Again";
+        btn.disabled = false;
+      }
+    };
+
+  } catch (err) {
+    console.error("❌ Unexpected error:", err);
+    btn.textContent = "Error";
+    btn.disabled = true;
+  }
 });
 </script>
 

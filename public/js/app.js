@@ -29,7 +29,8 @@ function showAlert(message, type = 'info') {
 // Fetch user data from the server
 async function fetchUserData() {
     try {
-        const response = await fetch('/api/user');
+        const response = await fetch('https://portrait-intelligence-lab-backend.onrender.com/api/user');
+
         if (!response.ok) throw new Error('Failed to fetch user data');
         const data = await response.json();
         return data;
@@ -43,7 +44,7 @@ async function fetchUserData() {
 // Update a micro-action status
 async function updateMicroAction(index, completed) {
     try {
-        const response = await fetch('/api/micro-action', {
+        const response = await fetch('https://portrait-intelligence-lab-backend.onrender.com/api/micro-action', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ index, completed })
@@ -60,7 +61,7 @@ async function updateMicroAction(index, completed) {
 // Register for a battle
 async function registerBattle(name, division) {
     try {
-        const response = await fetch('/api/battle/register', {
+        const response = await fetch('https://portrait-intelligence-lab-backend.onrender.com/api/battle/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
              credentials: "include",
@@ -78,7 +79,7 @@ async function registerBattle(name, division) {
 // Assign to a Circle pod
 async function assignPod() {
     try {
-        const response = await fetch('/api/circle/pod', {
+        const response = await fetch('https://portrait-intelligence-lab-backend.onrender.com/api/circle/pod', {
             method: 'POST',
              credentials: "include",
             headers: { 'Content-Type': 'application/json' }
@@ -95,7 +96,7 @@ async function assignPod() {
 // Finalize payment confirmation (Simulates Stripe Webhook trigger)
 async function confirmPayment(tier, paymentId) {
     try {
-        const response = await fetch('/api/payment/confirm', {
+        const response = await fetch('https://portrait-intelligence-lab-backend.onrender.com/api/payment/confirm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
              credentials: "include",

@@ -1,15 +1,33 @@
+// {
+//   "version": 2,
+//   "builds": [
+//     {
+//       "src": "public/**",
+//       "use": "@vercel/static"
+//     }
+//   ],
+//   "routes": [
+//     {
+//       "src": "/(.*)",
+//       "dest": "/public/$1"
+//     }
+//   ]
+// }
+
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
-    }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/public/$1"
-    }
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/micro-actions", "dest": "/micro-actions.html" },
+    { "src": "/tier/free", "dest": "/tiers/free.html" },
+    { "src": "/tier/9.99", "dest": "/tiers/9.99.html" },
+    { "src": "/tier/19.99", "dest": "/tiers/19.99.html" },
+    { "src": "/tier/199", "dest": "/tiers/199.html" },
+    { "src": "/tier/999", "dest": "/tiers/999.html" },
+    { "src": "/tier/9999", "dest": "/tiers/9999.html" },
+    { "src": "/(.*)", "dest": "/$1", "continue": true }
   ]
 }

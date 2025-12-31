@@ -1,21 +1,25 @@
-// This script manages the login/logout state in the header
+// js/header-auth.js
 document.addEventListener("headerLoaded", async () => {
+  console.log("Header loaded, checking auth..."); //
+  
   const loginBtn = document.getElementById("login-btn");
   const logoutBtn = document.getElementById("logout-btn");
   const userEmail = document.getElementById("user-email");
   const userEmailItem = document.getElementById("user-email-item");
 
+  // Your Render Backend URL
+  const BACKEND_URL = "https://portrait-intelligence-lab-backend.onrender.com";
+
   if (!loginBtn || !logoutBtn) {
-    console.warn("Auth buttons not found in the DOM.");
+    console.error("Auth elements missing in header"); //
     return;
   }
 
-  // Update UI based on the session state
   const updateUI = (session) => {
     if (session?.user) {
       // ✅ USER LOGGED IN
       if (userEmail) userEmail.textContent = session.user.email;
-      if (userEmailItem) userEmailItem.style.display = "block"; // Only shows on desktop via CSS
+      if (userEmailItem) userEmailItem.style.display = "block";
 
       loginBtn.parentElement.style.display = "none";
       logoutBtn.style.display = "block";
@@ -28,25 +32,25 @@ document.addEventListener("headerLoaded", async () => {
     }
   };
 
-  // 1. Check initial session
+  // 1. Initial Session Check
   const { data: { session } } = await supabase.auth.getSession();
   updateUI(session);
 
-  // 2. Listen for auth changes (login, logout, token refresh)
+  // 2. Auth State Change Listener
   supabase.auth.onAuthStateChange((event, newSession) => {
     console.log(`Auth Event: ${event}`);
     updateUI(newSession);
   });
 
-  // 3. Handle Logout Click
+  // 3. Logout Logic
   logoutBtn.onclick = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-        console.error("Logout Error:", error.message);
-    } else {
-        // Clear local cookies if using a custom backend JWT
-        document.cookie = "auth_token=; Max-Age=0; path=/;";
-        window.location.href = "/"; // Redirect to home
+    try {
+      await supabase.auth.signOut();
+      // Clear cookie for Render backend compatibility
+      document.cookie = "auth_token=; Max-Age=0; path=/;"; 
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout Error:", error.message);
     }
   };
 });

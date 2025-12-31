@@ -9,7 +9,7 @@
     { "source": "/battle/register", "destination": "/battle-register.html" },
     { "source": "/circle/pod", "destination": "/circle-pod.html" },
 
-    { "source": "/tier/:tier", "destination": "/tiers/:tier.html" },
+    { "source": "/tiers/:tier", "destination": "/tiers/:tier.html" },
 
     { "source": "/payment", "destination": "/payment.html" },
     { "source": "/payment-confirm", "destination": "/payment-confirm.html" }

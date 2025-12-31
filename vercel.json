@@ -6,18 +6,16 @@
 
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/micro-actions", "destination": "/micro-actions.html" },
+
     { "source": "/battle/register", "destination": "/battle-register.html" },
     { "source": "/circle/pod", "destination": "/circle-pod.html" },
 
-    { "source": "/tier/free", "destination": "/tiers/free.html" },
-    { "source": "/tier/9.99", "destination": "/tiers/9.99.html" },
-    { "source": "/tier/19.99", "destination": "/tiers/19.99.html" },
-    { "source": "/tier/199", "destination": "/tiers/199.html" },
-    { "source": "/tier/999", "destination": "/tiers/999.html" },
-    { "source": "/tier/9999", "destination": "/tiers/9999.html" },
+    {
+      "source": "/tier/:tier",
+      "destination": "/tiers/:tier.html"
+    },
 
     { "source": "/payment", "destination": "/payment.html" },
-    { "source": "/payment-confirm", "destination": "/payment-confirm.html" },
-    { "src": "/(.*)", "dest": "/$1", "continue": true }
+    { "source": "/payment-confirm", "destination": "/payment-confirm.html" }
   ]
 }

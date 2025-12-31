@@ -17,6 +17,7 @@
     { "source": "/tier/9999", "destination": "/tiers/9999.html" },
 
     { "source": "/payment", "destination": "/payment.html" },
-    { "source": "/payment-confirm", "destination": "/payment-confirm.html" }
+    { "source": "/payment-confirm", "destination": "/payment-confirm.html" },
+    { "src": "/(.*)", "dest": "/$1", "continue": true }
   ]
 }

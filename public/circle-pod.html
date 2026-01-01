@@ -107,7 +107,7 @@ async function loadCirclePod() {
     const session = await supabase.auth.getSession();
     const accessToken = session.data.session.access_token;
 
-    const res = await fetch("/api/circle/pod", {
+    const res = await fetch("https://portrait-intelligence-lab-backend.onrender.com/api/circle/pod", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${accessToken}`

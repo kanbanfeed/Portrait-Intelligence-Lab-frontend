@@ -2055,3 +2055,24 @@ background: #2C3E50;;
     display: none;
   }
 }
+.nav-account {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+/* email style */
+.nav-email {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  opacity: 0.85;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 768px) {
+  .nav-email {
+    display: none;
+  }
+}

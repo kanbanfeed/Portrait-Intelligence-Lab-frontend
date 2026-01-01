@@ -177,7 +177,7 @@ async function loadDashboard() {
     document.getElementById("circle-description").textContent = "Welcome to The Circle";
     document.getElementById("circle-actions").innerHTML = profile.pod_id
       ? `<span class="badge badge-info">Pod: ${profile.pod_id}</span>`
-      : `<a href="/circle/pod" class="btn btn-primary btn-card">Join Your Pod</a>`;
+      : `<a href="/circle-pod" class="btn btn-primary btn-card">Join Your Pod</a>`;
   } else {
     document.getElementById("circle-status").textContent = "Not a Member";
     document.getElementById("circle-actions").innerHTML = 

@@ -150,7 +150,7 @@ async function loadBattlePage() {
     const sessionData = await supabase.auth.getSession();
     const accessToken = sessionData.data.session.access_token;
 
-    const res = await fetch("/api/battle/register", {
+    const res = await fetch("https://portrait-intelligence-lab-backend.onrender.com/api/battle/register", { 
       method: "POST",
       headers: {
         "Content-Type": "application/json",

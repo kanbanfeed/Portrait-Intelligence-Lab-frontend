@@ -2021,3 +2021,36 @@ background: #2C3E50;;
 #header-placeholder {
   visibility: hidden;
 }
+
+/* =========================
+   USER EMAIL BADGE (HEADER)
+========================= */
+
+.user-badge {
+  margin-left: 1rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px; /* pill */
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #e5e7eb; /* soft white */
+  pointer-events: none; /* not clickable */
+  display: flex;
+  align-items: center;
+}
+
+/* optional icon before email */
+.user-badge::before {
+  content: "👤";
+  margin-right: 0.4rem;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.user-badge:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+@media (max-width: 768px) {
+  .user-badge {
+    display: none;
+  }
+}

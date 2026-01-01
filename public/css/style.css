@@ -2023,34 +2023,35 @@ background: #2C3E50;;
 }
 
 /* =========================
-   USER EMAIL BADGE (HEADER)
+   HEADER USER EMAIL (CLEAN)
 ========================= */
 
-.user-badge {
-  margin-left: 1rem;
-  padding: 0.35rem 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 999px; /* pill */
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #e5e7eb; /* soft white */
-  pointer-events: none; /* not clickable */
+.nav-user {
   display: flex;
   align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #cbd5e1; /* soft slate */
+  opacity: 0.9;
+  pointer-events: none; /* not clickable */
 }
 
-/* optional icon before email */
-.user-badge::before {
-  content: "👤";
-  margin-right: 0.4rem;
-  font-size: 0.8rem;
-  opacity: 0.8;
+/* small status dot */
+.nav-user .user-dot {
+  width: 7px;
+  height: 7px;
+  background: #22c55e; /* green = logged in */
+  border-radius: 50%;
 }
-.user-badge:hover {
-  background: rgba(255, 255, 255, 0.15);
+
+/* ensure it never looks like a menu item */
+.nav-links li.nav-user {
+  padding: 0;
 }
+
 @media (max-width: 768px) {
-  .user-badge {
+  .nav-user {
     display: none;
   }
 }

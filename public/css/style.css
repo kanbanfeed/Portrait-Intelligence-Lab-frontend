@@ -2017,3 +2017,7 @@ background: #2C3E50;;
         margin-top: 10px;
     }
 }
+/* hide header until loaded */
+#header-placeholder {
+  visibility: hidden;
+}

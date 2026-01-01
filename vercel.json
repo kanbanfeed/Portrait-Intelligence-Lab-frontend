@@ -8,7 +8,7 @@
     { "source": "/micro-actions", "destination": "/micro-actions.html" },
 
     { "source": "/battle/register", "destination": "/battle-register.html" },
-    { "source": "/circle-pod", "destination": "/circle-pod.html" },
+    { "source": "/circle/pod", "destination": "/circle-pod.html" },
 
     { "source": "/payment", "destination": "/payment.html" },
     { "source": "/payment-confirm", "destination": "/payment-confirm.html" }

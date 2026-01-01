@@ -13,5 +13,31 @@ async function requireAuth() {
     window.location.href = "/auth/login.html";
   }
 }
+const { data: { user } } = await supabase.auth.getUser();
+
+// 1️⃣ Not logged in → login page
+if (!user) {
+  window.location.href = "/auth/login.html";
+  return;
+}
+
+// 2️⃣ Check profile existence
+const { data: profile, error } = await supabase
+  .from("profiles")
+  .select("id")
+  .eq("id", user.id)
+  .single();
+
+// 🚨 PROFILE MISSING → FORCE REGISTER
+if (error || !profile) {
+  // 🔒 Important: logout to avoid broken state
+  await supabase.auth.signOut();
+
+  window.location.href = "/auth/register.html?reason=profile_missing";
+  return;
+}
+
+// ✅ SAFE TO CONTINUE
+
 
 requireAuth();

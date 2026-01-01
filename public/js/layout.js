@@ -7,7 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (header) {
         header.innerHTML = html;
 
-        // 🔥 CRITICAL: fire event AFTER header is in DOM
+        // ✅ SHOW header ONLY after HTML is injected
+        header.style.visibility = "visible";
+
+        // ✅ Notify auth + nav scripts
         document.dispatchEvent(new Event("headerLoaded"));
       }
     })

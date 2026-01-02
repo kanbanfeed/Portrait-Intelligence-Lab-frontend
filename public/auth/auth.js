@@ -32,6 +32,7 @@ async function signup() {
 
 
 async function login() {
+  import { ENV } from "/js/env.js";
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const msgEl = document.getElementById("msg");
@@ -71,7 +72,6 @@ async function login() {
     .eq("id", data.user.id)
     .single();
 
-  // 🚨 PROFILE MISSING
   if (profileError || !profile) {
     await supabase.auth.signOut();
     window.location.href = "/auth/signup.html?reason=profile_missing";
@@ -79,7 +79,7 @@ async function login() {
   }
 
   // ✅ ALL GOOD
-  window.location.href = "/dashboard";
+window.location.href = `${ENV.FRONTEND_ORIGIN}/dashboard`;
 }
 
 

@@ -32,34 +32,54 @@ async function signup() {
 
 
 async function login() {
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+  const msgEl = document.getElementById("msg");
+
+  msgEl.textContent = "";
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
+  // ❌ AUTH ERROR
   if (error) {
-    document.getElementById("msg").textContent = error.message;
+    const errMsg = error.message.toLowerCase();
+
+    if (
+      errMsg.includes("user not found") ||
+      errMsg.includes("invalid login credentials")
+    ) {
+      msgEl.textContent = "User not found. Please register.";
+      return;
+    }
+
+    if (errMsg.includes("password")) {
+      msgEl.textContent = "Incorrect password. Please try again.";
+      return;
+    }
+
+    msgEl.textContent = error.message;
     return;
   }
 
-  // 🔍 Immediately check profile
+  // 🔍 AUTH SUCCESS → CHECK PROFILE
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("id")
     .eq("id", data.user.id)
     .single();
 
-  // 🚨 Auth exists but profile missing
+  // 🚨 PROFILE MISSING
   if (profileError || !profile) {
     await supabase.auth.signOut();
     window.location.href = "/auth/signup.html?reason=profile_missing";
     return;
   }
 
-  // ✅ All good
+  // ✅ ALL GOOD
   window.location.href = "/dashboard";
 }
+
 

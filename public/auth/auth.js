@@ -13,13 +13,6 @@ async function signup() {
   btn.disabled = true;
   btn.textContent = "Creating account...";
 
-  if (!window.supabase) {
-    msg.textContent = "Supabase not loaded";
-    btn.disabled = false;
-    btn.textContent = "Create Account";
-    return;
-  }
-
   const { error } = await supabase.auth.signUp({
     email,
     password
@@ -32,12 +25,11 @@ async function signup() {
     return;
   }
 
-  // ✅ Signup success → dashboard
   window.location.href = `${ENV.FRONTEND_ORIGIN}/dashboard`;
 }
 
 /* ======================
-   LOGIN
+   LOGIN (FIXED)
 ====================== */
 async function login() {
   const email = document.getElementById("email").value.trim();
@@ -46,48 +38,33 @@ async function login() {
 
   msgEl.textContent = "";
 
+  /* 1️⃣ Attempt login */
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
-  // ❌ AUTH ERROR HANDLING
-  if (error) {
-    const errMsg = error.message.toLowerCase();
-
-    if (
-      errMsg.includes("user not found") ||
-      errMsg.includes("invalid login credentials")
-    ) {
-      msgEl.textContent = "User not found. Please register.";
-      return;
-    }
-
-    if (errMsg.includes("password")) {
-      msgEl.textContent = "Incorrect password. Please try again.";
-      return;
-    }
-
-    msgEl.textContent = error.message;
+  /* 2️⃣ LOGIN SUCCESS */
+  if (!error) {
+    window.location.href = `${ENV.FRONTEND_ORIGIN}/dashboard`;
     return;
   }
 
-  // 🔍 CHECK PROFILE EXISTENCE
+  /* 3️⃣ LOGIN FAILED → CHECK USER EXISTS */
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("id")
-    .eq("id", data.user.id)
+    .eq("email", email)
     .single();
 
-  // 🚨 Profile missing → force signup
+  /* ❌ USER DOES NOT EXIST */
   if (profileError || !profile) {
-    await supabase.auth.signOut();
-    window.location.href = `${ENV.FRONTEND_ORIGIN}/auth/signup.html?reason=profile_missing`;
+    msgEl.textContent = "User not found. Please register.";
     return;
   }
 
-  // ✅ SUCCESS
-  window.location.href = `${ENV.FRONTEND_ORIGIN}/dashboard`;
+  /* ❌ USER EXISTS → WRONG PASSWORD */
+  msgEl.textContent = "Incorrect password. Please try again.";
 }
 
 /* ======================

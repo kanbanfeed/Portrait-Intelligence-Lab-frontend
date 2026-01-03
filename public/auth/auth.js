@@ -34,38 +34,23 @@ async function signup() {
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  const msgEl = document.getElementById("msg");
+  const msg = document.getElementById("msg");
 
-  msgEl.textContent = "";
+  msg.textContent = "";
 
-  /* 1️⃣ Attempt login */
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
-  /* 2️⃣ LOGIN SUCCESS */
-  if (!error) {
-    window.location.href = `${ENV.FRONTEND_ORIGIN}/dashboard`;
+  if (error) {
+    msg.textContent = "Invalid email or password.";
     return;
   }
 
-  /* 3️⃣ LOGIN FAILED → CHECK USER EXISTS */
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("email", email)
-    .single();
-
-  /* ❌ USER DOES NOT EXIST */
-  if (profileError || !profile) {
-    msgEl.textContent = "User not found. Please register.";
-    return;
-  }
-
-  /* ❌ USER EXISTS → WRONG PASSWORD */
-  msgEl.textContent = "Incorrect password. Please try again.";
+  window.location.href = "/dashboard";
 }
+
 
 /* ======================
    EXPOSE FOR onclick

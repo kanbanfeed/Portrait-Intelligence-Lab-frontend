@@ -1,57 +1,29 @@
-document.addEventListener("headerLoaded", async () => {
-  const loginItem = document.getElementById("login-item");
-  const logoutItem = document.getElementById("logout-item");
-  const logoutBtn = document.getElementById("logout-btn");
-  const userEmail = document.getElementById("user-email");
-  const userEmailItem = document.getElementById("user-email-item");
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo">
+      <a href="/">Portrait Intelligence Lab</a>
+    </div>
 
-  if (!loginItem || !logoutItem || !logoutBtn) {
-    console.error("Header auth elements missing");
-    return;
-  }
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+      <span></span><span></span><span></span>
+    </button>
 
-  function updateUI(session) {
-    if (session?.user) {
-      // ✅ LOGGED IN
-      userEmail.textContent = session.user.email;
-      userEmailItem.style.display = "block";
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+      <li><a href="/micro-actions">Micro-Actions</a></li>
+      <li><a href="/battle-register">Battles</a></li>
+      
+      <li id="user-email-item" class="desktop-only" style="display:none;">
+        <span id="user-email" class="nav-user"></span>
+      </li>
 
-      loginItem.style.display = "none";
-      logoutItem.style.display = "block";
-    } else {
-      // ❌ LOGGED OUT
-      userEmailItem.style.display = "none";
-
-      loginItem.style.display = "block";
-      logoutItem.style.display = "none";
-    }
-  }
-
-  // ✅ Initial state
-  const { data: { session } } = await supabase.auth.getSession();
-  updateUI(session);
-
-  // ✅ React to auth changes
-  supabase.auth.onAuthStateChange((_event, newSession) => {
-    updateUI(newSession);
-  });
-
-  // ✅ LOGOUT HANDLER (THIS WAS THE BROKEN PART)
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await supabase.auth.signOut();
-
-      // Clear magic cookie (important)
-      document.cookie = "auth_token=; Max-Age=0; path=/";
-
-      // Force UI reset
-      updateUI(null);
-
-      // Redirect
-      window.location.href = "/";
-    } catch (err) {
-      console.error("Logout failed", err);
-      alert("Logout failed. Please refresh.");
-    }
-  });
-});
+      <li id="login-item">
+        <a href="/auth/login.html" id="login-btn" class="btn btn-secondary">Login</a>
+      </li>
+      <li id="logout-item" style="display:none;">
+        <button id="logout-btn" class="btn btn-secondary">Logout</button>
+      </li>
+    </ul>
+  </div>
+</nav>

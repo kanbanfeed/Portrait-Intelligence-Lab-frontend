@@ -1,37 +1,57 @@
 document.addEventListener("headerLoaded", async () => {
-  const header = document.getElementById("header-placeholder");
-
   const loginItem = document.getElementById("login-item");
   const logoutItem = document.getElementById("logout-item");
-  const userEmailItem = document.getElementById("user-email-item");
+  const logoutBtn = document.getElementById("logout-btn");
   const userEmail = document.getElementById("user-email");
+  const userEmailItem = document.getElementById("user-email-item");
 
-  if (!window.supabase) {
-    console.error("Supabase not loaded");
-    header.style.visibility = "visible";
+  if (!loginItem || !logoutItem || !logoutBtn) {
+    console.error("Header auth elements missing");
     return;
   }
 
-  const updateUI = (session) => {
+  function updateUI(session) {
     if (session?.user) {
+      // ✅ LOGGED IN
+      userEmail.textContent = session.user.email;
+      userEmailItem.style.display = "block";
+
       loginItem.style.display = "none";
       logoutItem.style.display = "block";
-      userEmailItem.style.display = "block";
-      userEmail.textContent = session.user.email;
     } else {
+      // ❌ LOGGED OUT
+      userEmailItem.style.display = "none";
+
       loginItem.style.display = "block";
       logoutItem.style.display = "none";
-      userEmailItem.style.display = "none";
     }
+  }
 
-    // ✅ SHOW HEADER ONLY AFTER AUTH CHECK
-    header.style.visibility = "visible";
-  };
-
+  // ✅ Initial state
   const { data: { session } } = await supabase.auth.getSession();
   updateUI(session);
 
+  // ✅ React to auth changes
   supabase.auth.onAuthStateChange((_event, newSession) => {
     updateUI(newSession);
+  });
+
+  // ✅ LOGOUT HANDLER (THIS WAS THE BROKEN PART)
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await supabase.auth.signOut();
+
+      // Clear magic cookie (important)
+      document.cookie = "auth_token=; Max-Age=0; path=/";
+
+      // Force UI reset
+      updateUI(null);
+
+      // Redirect
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout failed", err);
+      alert("Logout failed. Please refresh.");
+    }
   });
 });

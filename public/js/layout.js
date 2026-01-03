@@ -4,15 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.text())
     .then(html => {
       const header = document.getElementById("header-placeholder");
-      if (header) {
-        header.innerHTML = html;
+      if (!header) return;
 
-        // ✅ SHOW header ONLY after HTML is injected
-        header.style.visibility = "visible";
+      header.innerHTML = html;
 
-        // ✅ Notify auth + nav scripts
-        document.dispatchEvent(new Event("headerLoaded"));
-      }
+      // ❌ DO NOT make header visible here
+      // ✅ Only notify that header HTML is ready
+      document.dispatchEvent(new Event("headerLoaded"));
     })
     .catch(err => console.error("Header load failed", err));
 

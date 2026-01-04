@@ -1771,6 +1771,232 @@ background: #2C3E50;;
     font-size: 0.95rem;
   }
 }
+
+/* ================================
+   Portrait Intelligence Footer
+================================ */
+
+/* Brand heading */
+.footer-brand-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;   /* controls closeness */
+  margin-bottom: 0.6rem;
+}
+
+.footer-brand {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.footer-brand-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* Description text */
+.footer-muted {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+
+
+.portrait-footer {
+  background: linear-gradient(135deg, #0f172a, #020617);
+  color: #cbd5e1;
+  padding: 3rem 1.5rem 2rem;
+  font-size: 0.9rem;
+}
+
+.portrait-footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+/* Brand */
+.portrait-footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.portrait-footer-brand img {
+  width: 150px;
+}
+
+.portrait-footer-brand p {
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* Section titles */
+.portrait-footer h4 {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Links */
+.portrait-footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.portrait-footer-links a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+}
+
+.portrait-footer-links a:hover {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+.footer-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+.footer-muted {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.footer-address {
+  color: #374151;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Bottom bar */
+.portrait-footer-bottom {
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* Back to top */
+.portrait-back-to-top {
+  margin-top: 0.75rem;
+  display: inline-block;
+  color: #38bdf8;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .portrait-footer {
+    padding: 2.5rem 1.25rem;
+  }
+
+  .portrait-footer-container {
+    gap: 1.75rem;
+  }
+}
+
+/* ================================
+   Light Compliance Footer
+================================ */
+
+.light-footer {
+  background: #f8fafc;
+  color: #334155;
+  padding: 3rem 1.5rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+.light-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2.5rem;
+}
+
+/* Columns */
+.footer-col h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  color: #0f172a;
+}
+
+.footer-col a {
+  display: block;
+  color: #2563eb;
+  text-decoration: none;
+  margin-bottom: 0.4rem;
+}
+
+.footer-col a:hover {
+  text-decoration: underline;
+}
+
+.footer-muted {
+  color: #64748b;
+  line-height: 1.6;
+  font-size: 0.85rem;
+}
+
+.footer-brand {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+/* Bottom bar */
+.light-footer-bottom {
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.back-to-top {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.back-to-top:hover {
+  text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .light-footer-bottom {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+}
+
+
 /* ===============================
    PAYMENT CONFIRM – MOBILE SAFE
    =============================== */

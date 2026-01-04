@@ -14,12 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => console.error("Header load failed", err));
 
-  // Load Footer
-  fetch("/components/footer.html")
-    .then(res => res.text())
-    .then(html => {
-      const footer = document.getElementById("footer-placeholder");
-      if (footer) footer.innerHTML = html;
-    })
-    .catch(err => console.error("Footer load failed", err));
-});
+    // Load Footer
+fetch("/components/footer.html")
+  .then(res => res.text())
+  .then(html => {
+    const footer = document.getElementById("footer-placeholder");
+    if (!footer) return;
+    footer.innerHTML = html;
+  })
+  .catch(err => console.error("Footer load failed", err));
+
+
+  });

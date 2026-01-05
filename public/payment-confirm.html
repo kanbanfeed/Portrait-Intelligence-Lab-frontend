@@ -20,51 +20,36 @@
     </div>
 
     <div class="container">
-<div class="card payment-card payment-confirm">
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--dark);">Payment Details</h2>
+    <div class="card payment-card payment-confirm">
+        <div class="confirm-header">
+            <h2>Payment Details</h2>
+        </div>
+        
+        <div class="details-box">
+            <div class="detail-row">
+                <span class="label">Tier:</span>
+                <span class="value" id="tier-name"></span>
             </div>
-            
-            <div style="background: var(--light); padding: 2rem; border-radius: 0.75rem; margin-bottom: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border);">
-                    <span style="color: var(--text-light); font-weight: 500;">Tier:</span>
-                    <span style="font-weight: 700; font-size: 1.125rem; color: var(--dark);" id="tier-name"></span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border);">
-                    <span style="color: var(--text-light); font-weight: 500;">Payment ID:</span>
-<span
-  id="payment-id"
-  style="
-    font-weight: 600;
-    font-family: monospace;
-    font-size: 0.95rem;
-    color: var(--dark);
-    max-width: 260px;
-    text-align: right;
-    word-break: break-all;
-    overflow-wrap: anywhere;
-    display: inline-block;
-  "
-></span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
-                    <span style="color: var(--text-light); font-weight: 500;">Payment Method:</span>
-                    <span style="font-weight: 700; color: var(--primary);" id="payment-method"></span>
-                </div>
+            <div class="detail-row">
+                <span class="label">Payment ID:</span>
+                <span class="value mono" id="payment-id"></span>
             </div>
-
-            <div style="background: #d1fae5; padding: 1.5rem; border-radius: 0.5rem; border-left: 4px solid var(--success); margin-bottom: 2rem;">
-                <p style="color: #065f46; font-weight: 600; margin: 0;">
-                    ✅ Your tier has been unlocked! You now have access to all tier benefits.
-                </p>
-            </div>
-
-            <div class="action-group-mobile">
-                <a href="/dashboard" class="btn btn-primary btn-large">Go to Dashboard</a>
-                <a href="/" class="btn btn-secondary btn-large">Back to Home</a>
+            <div class="detail-row">
+                <span class="label">Payment Method:</span>
+                <span class="value primary-color" id="payment-method"></span>
             </div>
         </div>
+
+        <div class="success-alert">
+            <p>✅ Your tier has been unlocked! You now have access to all tier benefits.</p>
+        </div>
+
+        <div class="action-group-mobile">
+            <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+            <a href="/" class="btn btn-secondary">Back to Home</a>
+        </div>
     </div>
+</div>
      <div id="footer-placeholder"></div>
 <!-- Supabase FIRST -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

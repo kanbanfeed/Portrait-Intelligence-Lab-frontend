@@ -1,28 +1,14 @@
-async function waitForHeaderAndSupabase() {
-  return new Promise((resolve) => {
-    const check = () => {
-      if (
-        window.supabase &&
-        document.getElementById("login-item") &&
-        document.getElementById("logout-item")
-      ) {
-        resolve();
-      } else {
-        setTimeout(check, 50);
-      }
-    };
-    check();
-  });
-}
-
-async function initHeaderAuth() {
-  await waitForHeaderAndSupabase();
-
+document.addEventListener("headerLoaded", async () => {
   const loginItem = document.getElementById("login-item");
   const logoutItem = document.getElementById("logout-item");
   const logoutBtn = document.getElementById("logout-btn");
   const userEmail = document.getElementById("user-email");
   const userEmailItem = document.getElementById("user-email-item");
+
+  if (!loginItem || !logoutItem || !logoutBtn) {
+    console.error("❌ Header auth elements missing");
+    return;
+  }
 
   function showLoggedOut() {
     userEmailItem.style.display = "none";
@@ -30,37 +16,54 @@ async function initHeaderAuth() {
     logoutItem.style.display = "none";
   }
 
-  function showLoggedIn(email = "Member") {
+  function showLoggedIn(email = "") {
     if (userEmail) userEmail.textContent = email;
     userEmailItem.style.display = "block";
     loginItem.style.display = "none";
     logoutItem.style.display = "block";
   }
 
-  showLoggedOut();
+  /* ===============================
+     🔐 AUTH CHECK (SUPABASE + COOKIE)
+  ================================ */
 
-  // 🔐 Immediate session check (Stripe redirect fix)
-  const { data } = await supabase.auth.getSession();
-  if (data?.session?.user) {
-    showLoggedIn(data.session.user.email);
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session?.user) {
+    showLoggedIn(session.user.email);
+  } else {
+    // Fallback: check magic cookie
+    const hasAuthCookie = document.cookie.includes("auth_token=");
+    hasAuthCookie ? showLoggedIn("Member") : showLoggedOut();
   }
 
-  // 🔁 Live auth updates
-  supabase.auth.onAuthStateChange((_event, session) => {
-    if (session?.user) {
-      showLoggedIn(session.user.email);
+  /* ===============================
+     🔁 AUTH STATE CHANGES
+  ================================ */
+  supabase.auth.onAuthStateChange((_event, newSession) => {
+    if (newSession?.user) {
+      showLoggedIn(newSession.user.email);
     } else {
       showLoggedOut();
     }
   });
 
-  // 🚪 Logout
+  /* ===============================
+     🚪 LOGOUT (ALWAYS WORKS)
+  ================================ */
   logoutBtn.onclick = async () => {
-    await supabase.auth.signOut();
-    showLoggedOut();
-    window.location.href = "/";
-  };
-}
+    try {
+      await supabase.auth.signOut();
 
-/* Run everywhere safely */
-document.addEventListener("DOMContentLoaded", initHeaderAuth);
+      // Clear magic cookie
+      document.cookie = "auth_token=; Max-Age=0; path=/";
+
+      showLoggedOut();
+
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout failed", err);
+      alert("Logout failed. Please refresh.");
+    }
+  };
+});

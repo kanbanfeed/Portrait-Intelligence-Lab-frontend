@@ -1,8 +1,8 @@
 import { ENV } from "/js/env.js";
 
-/* ======================
+/*
    SIGN UP
-====================== */
+ */
 async function signup() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
@@ -44,7 +44,7 @@ async function login() {
   });
 
   if (error) {
-    msg.textContent = "Invalid email or password.";
+    msg.textContent = "Invalid email or password. Please check your credentials and try again..";
     return;
   }
 
@@ -52,8 +52,8 @@ async function login() {
 }
 
 
-/* ======================
+/* 
    EXPOSE FOR onclick
-====================== */
+ */
 window.login = login;
 window.signup = signup;

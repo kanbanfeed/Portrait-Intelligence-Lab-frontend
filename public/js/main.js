@@ -106,3 +106,14 @@ document.addEventListener("headerLoaded", () => {
     }
   });
 });
+function openCookieSettings(e) {
+  e.preventDefault();
+
+  const modal = document.getElementById("cookie-modal");
+  if (!modal) {
+    alert("Cookie settings not available yet.");
+    return;
+  }
+
+  modal.classList.remove("hidden");
+}

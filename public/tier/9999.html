@@ -47,11 +47,12 @@
                 </p>
             <div class="tier-actions">
 
-           <a
-  id="purchase-btn"
-  class="btn btn-success btn-large">
-  Join This Tier
-            </a>
+             <button
+    id="purchase-btn"
+    class="btn btn-success btn-large"
+    type="button">
+    Join This Tier
+  </button>
 
 
 
@@ -64,119 +65,13 @@
         </div>
     </div>
  <div id="footer-placeholder"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/supabase.js"></script>
 
 <script src="/js/layout.js"></script>
 <script src="/js/header-auth.js"></script>
-<script src="/js/main.js"></script>
+<script src="/js/tier-guard.js"></script>
 
-<!-- then your purchase script -->
-
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const btn = document.getElementById("purchase-btn");
-  if (!btn) return;
-
-  const TIER_CODE = "9999"; // 🔁 Change per tier page
-
-  try {
-    /* ======================
-        GET LOGGED-IN USER
-    ====================== */
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    /* ======================
-        NOT LOGGED IN
-    ====================== */
-    if (!user || authError) {
-      btn.textContent = "Login & Join";
-      btn.onclick = () => {
-        window.location.href = "/auth/login.html";
-      };
-      return;
-    }
-
-    /* ======================
-        FETCH USER PROFILE
-    ====================== */
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("tier")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError) {
-      console.error("❌ Profile fetch error:", profileError);
-      btn.textContent = "Error loading profile";
-      btn.disabled = true;
-      return;
-    }
-
-    /* ======================
-        CHECK EXISTING TIERS
-    ====================== */
-    const userTiers = Array.isArray(profile.tier)
-      ? profile.tier
-      : [profile.tier || "free"];
-
-    if (userTiers.includes(TIER_CODE)) {
-      btn.textContent = "Already Purchased";
-      btn.disabled = true;
-      btn.classList.remove("btn-success");
-      btn.classList.add("btn-secondary");
-      btn.style.opacity = "0.7";
-      btn.style.cursor = "not-allowed";
-      return;
-    }
-
-    /* ======================
-        PURCHASE HANDLER
-    ====================== */
-    btn.onclick = async () => {
-      btn.disabled = true;
-      btn.textContent = "Redirecting…";
-
-      try {
-        const res = await fetch(
-          "https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              tier: TIER_CODE,
-              supabaseUserId: user.id
-            })
-          }
-        );
-
-        if (!res.ok) {
-          throw new Error("Checkout request failed");
-        }
-
-        const data = await res.json();
-
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error("No checkout URL returned");
-        }
-
-      } catch (err) {
-        console.error("❌ Checkout error:", err);
-        btn.textContent = "Try Again";
-        btn.disabled = false;
-      }
-    };
-
-  } catch (err) {
-    console.error("❌ Unexpected error:", err);
-    btn.textContent = "Error";
-    btn.disabled = true;
-  }
-});
-</script>
 
 
 

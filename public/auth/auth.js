@@ -68,7 +68,5 @@ async function login() {
 
   window.location.href = "/dashboard";
 }
-
-
 window.signup = signup;
 window.login = login;

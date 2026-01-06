@@ -26,16 +26,32 @@ async function signup() {
     return;
   }
 
-  // ✅ SUCCESS CONFIRMATION (THIS IS REQUIRED & CORRECT)
-  msg.style.color = "green";
-  msg.textContent = "🎉 Thank you for registering successfully! Redirecting…";
+  /* ✅ SEND REGISTRATION SUCCESS EMAIL (ONLY ON SIGNUP) */
+  if (data?.user) {
+    try {
+      await fetch(`${ENV.BACKEND_ORIGIN}/api/send-welcome`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: data.user.email
+        })
+      });
+    } catch (e) {
+      console.error("Signup email failed", e);
+    }
+  }
 
-  // ❌ DO NOT CALL BACKEND FROM FRONTEND
+  /* ✅ SUCCESS MESSAGE */
+  msg.style.color = "green";
+  msg.textContent = "🎉 Registration successful! Redirecting to dashboard…";
 
   setTimeout(() => {
     window.location.href = "/dashboard";
   }, 2000);
 }
+
 /* ======================
    LOGIN
 ====================== */
@@ -53,20 +69,13 @@ async function login() {
 
   if (error) {
     msg.textContent = "Invalid email or password.";
+    msg.style.color = "red";
     return;
   }
 
-  // ✅ Trigger welcome email ONCE
-  await fetch(`${ENV.BACKEND_ORIGIN}/api/send-welcome-on-login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId: data.user.id,
-      email: data.user.email
-    })
-  });
-
+  // ❌ DO NOT SEND REGISTRATION EMAIL ON LOGIN
   window.location.href = "/dashboard";
 }
+
 window.signup = signup;
 window.login = login;

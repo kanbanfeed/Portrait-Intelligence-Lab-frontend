@@ -1,8 +1,8 @@
 import { ENV } from "/js/env.js";
 
-/*
+/* ======================
    SIGN UP
- */
+====================== */
 async function signup() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
@@ -13,23 +13,31 @@ async function signup() {
   btn.disabled = true;
   btn.textContent = "Creating account...";
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password
   });
 
   if (error) {
     msg.textContent = error.message;
+    msg.style.color = "red";
     btn.disabled = false;
-    btn.textContent = "Create Account";
+    btn.textContent = "Sign Up";
     return;
   }
 
-  window.location.href = `${ENV.FRONTEND_ORIGIN}/dashboard`;
-}
+  // ✅ SUCCESS CONFIRMATION (THIS IS REQUIRED & CORRECT)
+  msg.style.color = "green";
+  msg.textContent = "🎉 Thank you for registering successfully! Redirecting…";
 
+  // ❌ DO NOT CALL BACKEND FROM FRONTEND
+
+  setTimeout(() => {
+    window.location.href = "/dashboard";
+  }, 2000);
+}
 /* ======================
-   LOGIN (FIXED)
+   LOGIN
 ====================== */
 async function login() {
   const email = document.getElementById("email").value.trim();
@@ -38,22 +46,29 @@ async function login() {
 
   msg.textContent = "";
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
   if (error) {
-    msg.textContent = "Invalid email or password. Please check your credentials and try again..";
+    msg.textContent = "Invalid email or password.";
     return;
   }
+
+  // ✅ Trigger welcome email ONCE
+  await fetch(`${ENV.BACKEND_ORIGIN}/api/send-welcome-on-login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: data.user.id,
+      email: data.user.email
+    })
+  });
 
   window.location.href = "/dashboard";
 }
 
 
-/* 
-   EXPOSE FOR onclick
- */
-window.login = login;
 window.signup = signup;
+window.login = login;

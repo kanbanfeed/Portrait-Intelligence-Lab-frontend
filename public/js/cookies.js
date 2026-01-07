@@ -26,25 +26,27 @@
   /* =========================
      INITIAL STATE
   ========================== */
-document.addEventListener("DOMContentLoaded", () => {
-  // Wait until layout.js injects banner
-  setTimeout(() => {
-    const consent = getConsent();
-    const banner = document.getElementById("cookie-banner");
+(function waitForCookieBanner() {
+  const banner = document.getElementById("cookie-banner");
 
-    if (!banner) {
-      console.warn("Cookie banner not found in DOM");
-      return;
-    }
+  if (!banner) {
+    return setTimeout(waitForCookieBanner, 50);
+  }
 
-    // SHOW ONLY IF NO CONSENT
-    if (!consent || typeof consent !== "object") {
-      banner.classList.remove("hidden");
-    } else {
-      banner.classList.add("hidden");
+  const consent = getConsent();
+
+  if (!consent || typeof consent !== "object") {
+    banner.classList.remove("hidden"); // FIRST VISIT
+  } else {
+    banner.classList.add("hidden"); // ALREADY CONSENTED
+
+    // ✅ RESTORE ANALYTICS STATE
+    if (consent.analytics && window.GAConsent) {
+      window.GAConsent.enableAnalytics();
     }
-  }, 50); // ⏱ allows layout.js to finish
-});
+  }
+})();
+
 
 
   

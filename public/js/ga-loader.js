@@ -17,6 +17,9 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     window.gtag = gtag;
+gtag("consent", "default", {
+  analytics_storage: "denied"
+});
 
     gtag("js", new Date());
 

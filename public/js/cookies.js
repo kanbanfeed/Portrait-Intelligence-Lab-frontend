@@ -26,24 +26,42 @@
   /* =========================
      INITIAL STATE
   ========================== */
-  document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
+  // Wait until layout.js injects banner
+  setTimeout(() => {
     const consent = getConsent();
-    if (!consent) {
-      document.getElementById("cookie-banner")?.classList.remove("hidden");
-    }
-  });
+    const banner = document.getElementById("cookie-banner");
 
-  /* =========================
-     🔥 EVENT DELEGATION (KEY FIX)
-  ========================== */
+    if (!banner) {
+      console.warn("Cookie banner not found in DOM");
+      return;
+    }
+
+    // SHOW ONLY IF NO CONSENT
+    if (!consent || typeof consent !== "object") {
+      banner.classList.remove("hidden");
+    } else {
+      banner.classList.add("hidden");
+    }
+  }, 50); // ⏱ allows layout.js to finish
+});
+
+
+  
   document.addEventListener("click", (e) => {
 
     // ACCEPT ALL
-    if (e.target.closest("#accept-all")) {
-      setConsent({ essential: true, analytics: true, marketing: false });
-      hideAll();
-      return;
-    }
+   if (e.target.closest("#accept-all")) {
+  setConsent({ essential: true, analytics: true, marketing: false });
+
+  if (window.GAConsent) {
+    window.GAConsent.enableAnalytics();
+  }
+
+  hideAll();
+  return;
+}
+
 
     // REJECT NON-ESSENTIAL
     if (e.target.closest("#reject-all")) {
@@ -65,12 +83,22 @@
     }
 
     // SAVE PREFERENCES
-    if (e.target.closest("#save-cookie-preferences")) {
-      const analytics = document.getElementById("analytics-cookies")?.checked || false;
-      setConsent({ essential: true, analytics, marketing: false });
-      hideAll();
-      return;
-    }
+   if (e.target.closest("#save-cookie-preferences")) {
+  const analytics =
+    document.getElementById("analytics-cookies")?.checked || false;
+
+  setConsent({ essential: true, analytics, marketing: false });
+
+  if (window.GAConsent) {
+    analytics
+      ? window.GAConsent.enableAnalytics()
+      : window.GAConsent.disableAnalytics();
+  }
+
+  hideAll();
+  return;
+}
+
 
   });
 

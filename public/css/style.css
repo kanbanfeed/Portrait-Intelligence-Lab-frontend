@@ -2741,3 +2741,101 @@ background: #2C3E50;;
     text-align: center;
   }
 }
+/* ✅ Fix for the Checkbox Alignment */
+.checkbox-group {
+    display: flex;
+    align-items: flex-start; /* Aligns checkbox with the first line of text */
+    gap: 10px;               /* Space between checkbox and text */
+    margin: 1.5rem 0;        /* Consistent vertical spacing */
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;             /* Fixed size for the checkbox */
+    height: 18px;
+    margin-top: 3px;         /* Fine-tune vertical alignment with text */
+    cursor: pointer;
+    flex-shrink: 0;          /* Prevents checkbox from squishing */
+}
+
+.checkbox-group label {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #475569;
+    cursor: pointer;
+    margin-bottom: 0;        /* Override global label margins */
+}
+
+.checkbox-group label a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.checkbox-group label a:hover {
+    text-decoration: underline;
+}
+.page-disclaimer {
+  margin: 16px 0 24px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+}
+
+.inline-disclaimer {
+  margin-top: 5px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #101012;
+  background: #bed0e2;
+  border-left: 3px solid #e5e7eb;
+  border-radius: 6px;
+}
+.tier-disclaimer {
+  margin-top: 20px;
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4b5563;
+  background: #f9fafb;
+  border-left: 4px solid #d1d5db;
+  border-radius: 8px;
+}
+
+/* Slightly stronger on payment page */
+.tier-disclaimer-warning {
+  background: #fff7ed;
+  border-left-color: #fb923c;
+  color: #374151;
+}
+.auth-disclaimer {
+  margin-top: 18px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #6b7280;
+  text-align: center;
+}
+
+.auth-disclaimer a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.payment-disclaimer {
+  margin: 24px 0 16px;
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #374151;
+  background: #fff7ed;
+  border-left: 4px solid #fb923c;
+  border-radius: 8px;
+}
+
+.payment-disclaimer a {
+  color: #2563eb;
+  text-decoration: underline;
+}

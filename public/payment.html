@@ -55,17 +55,52 @@
     <div style="text-align:center;margin-top:1.5rem;">
       <a href="/" class="btn btn-secondary" style="background: #f59e0b">Cancel</a>
     </div>
+    <div class="payment-disclaimer">
+  This purchase provides access to informational and engagement content only.<br /><br />
+  No professional advice, outcomes, or guarantees are provided.
+  Refunds and cancellations are governed by our
+  <a href="/refund-policy.html" target="_blank">Refund Policy</a>.
+</div>
+
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/js/supabase.js"></script>
 
 <script type="module">
+  
 import { ENV } from "/js/env.js";
 import { supabase } from "/js/supabase.js";
+const TIER_MAP = {
+  "9.99": { name: "Starter Tier", price: "$9.99" },
+  "19.99": { name: "Professional Tier", price: "$19.99" },
+  "199": { name: "Access Pass", price: "$199" },
+  "999": { name: "Elite Challenge", price: "$999" },
+  "9999": { name: "The Circle", price: "$9,999" }
+};
 
 const params = new URLSearchParams(window.location.search);
-const tier = params.get("tier");
+let tier = params.get("tier");
+
+// fallback for /payment/999
+if (!tier) {
+  const parts = window.location.pathname.split("/");
+  tier = parts[parts.length - 1];
+}
+
+if (!tier || !TIER_MAP[tier]) {
+  document.getElementById("tier-info").textContent = "Invalid tier selected";
+  document.getElementById("stripe-btn").disabled = true;
+} else {
+  document.getElementById("tier-info").textContent =
+    `You are purchasing the ${TIER_MAP[tier].name}`;
+
+  document.getElementById("tier-name-display").textContent =
+    TIER_MAP[tier].name;
+
+  document.getElementById("tier-price-display").textContent =
+    TIER_MAP[tier].price;
+}
 
 document.getElementById("stripe-btn").addEventListener("click", async () => {
   const btn = document.getElementById("stripe-btn");
@@ -84,7 +119,8 @@ document.getElementById("stripe-btn").addEventListener("click", async () => {
 
   try {
     const res = await fetch(
-      `${ENV.BACKEND_ORIGIN}/api/stripe/create-checkout`,
+      `"https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout"
+/api/stripe/create-checkout`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

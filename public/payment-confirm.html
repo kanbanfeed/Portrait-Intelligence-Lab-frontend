@@ -38,6 +38,25 @@
                 <span class="label">Payment Method:</span>
                 <span class="value" id="payment-method"></span>
             </div>
+            <div class="detail-row">
+  <span class="label">Subtotal:</span>
+  <span class="value" id="subtotal"></span>
+</div>
+
+<div class="detail-row">
+  <span class="label">VAT:</span>
+  <span class="value">$0.00 (Not applicable)</span>
+</div>
+
+<div class="detail-row">
+  <span class="label">Total Paid:</span>
+  <span class="value" id="total-paid"></span>
+</div>
+<p style="font-size:0.85rem; color:#6b7280; margin-top:12px; text-align:center;">
+  No VAT has been charged as Crowbar Ventures Limited is not currently registered
+  for VAT in the United Kingdom.
+</p>
+
         </div>
 
         <div class="success-alert">
@@ -78,6 +97,18 @@
     '999': 'Elite Challenge ($999)',
     '9999': 'The Circle ($9,999)'
   };
+const priceMap = {
+  '9.99': '$9.99',
+  '19.99': '$19.99',
+  '199': '$199',
+  '999': '$999',
+  '9999': '$9,999'
+};
+
+if (tier && priceMap[tier]) {
+  document.getElementById('subtotal').textContent = priceMap[tier];
+  document.getElementById('total-paid').textContent = priceMap[tier];
+}
 
   if (tier && tierMap[tier]) {
     document.getElementById('tier-name').textContent = tierMap[tier];

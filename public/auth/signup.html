@@ -6,6 +6,7 @@
   <title>Create Account – Portrait Intelligence Lab</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
+
 <body class="auth-page">
 
   <div class="auth-card">
@@ -22,21 +23,54 @@
       <input id="password" type="password" placeholder="Create a strong password" />
     </div>
 
-    <button onclick="signup()" class="btn btn-primary">
-      Sign Up
+    <!-- ✅ TERMS CHECKBOX -->
+  <div class="form-group checkbox-group">
+    <input type="checkbox" id="termsCheckbox" />
+    <label for="termsCheckbox">
+        I have read and agree to the 
+        <a href="/legal/terms.html" target="_blank">Terms of Service</a> 
+        and 
+        <a href="/legal/privacy.html" target="_blank">Privacy Policy</a>
+    </label>
+</div>
+
+
+    <button
+      id="signupBtn"
+      onclick="signup()"
+      class="btn btn-primary"
+      disabled
+    >
+      🚀 Start My Journey
     </button>
 
     <div class="auth-footer">
       Already have an account?
       <a href="/auth/login.html">Login</a>
     </div>
+<div class="auth-disclaimer">
+  Portrait Intelligence Lab is operated by <strong>Crowbar Ventures Limited</strong>.<br /><br />
+  User accounts and personal data are governed by Crowbar’s
+  <a href="/legal/privacy.html" target="_blank">Privacy Policy</a>
+  and applicable data-protection laws.
+</div>
 
     <div id="msg" class="auth-error"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/js/supabase.js"></script>
-<script type="module" src="/auth/auth.js"></script>
+  <script type="module" src="/auth/auth.js"></script>
+
+  <!-- ✅ ENABLE BUTTON ONLY IF CHECKED -->
+  <script>
+    const checkbox = document.getElementById("termsCheckbox");
+    const signupBtn = document.getElementById("signupBtn");
+
+    checkbox.addEventListener("change", () => {
+      signupBtn.disabled = !checkbox.checked;
+    });
+  </script>
 
 </body>
 </html>

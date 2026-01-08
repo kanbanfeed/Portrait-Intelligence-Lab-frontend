@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Safety fallback (if user returns silently)
     setTimeout(resetButton, 8000);
-
+const { data: { user } } = await supabase.auth.getUser();
     try {
       const res = await fetch(
         "https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout",
@@ -106,7 +106,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             tier,
-            supabaseUserId: userId
+            supabaseUserId: userId,
+            userEmail: user.email
           })
         }
       );

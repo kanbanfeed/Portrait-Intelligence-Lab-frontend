@@ -128,7 +128,7 @@ async function loadDashboard() {
   ========================== */
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("tier, micro_progress, pod_id, battle_count")
+.select("tier, micro_progress, pod_id, battle_registrations")
     .eq("id", user.id)
     .single();
 
@@ -155,21 +155,66 @@ async function loadDashboard() {
     tierDesc.innerHTML += `<div style="color:var(--success); font-weight:600; margin-top:0.2rem;">✓ ${name}</div>`;
   });
 
+const battleRegistrations = profile.battle_registrations || [];
+
+// Determine highest eligible division (same as battle page)
+let division = "free";
+if (userTiers.includes("9999")) division = "circle";
+else if (userTiers.includes("999")) division = "elite";
+else if (userTiers.includes("199")) division = "access";
+
+const DIVISION_TO_TIER = {
+  free: "free",
+  access: "199",
+  elite: "999",
+  circle: "9999"
+};
+
+const currentTierCode = DIVISION_TO_TIER[division];
+
+// Check registration for current battle + tier
+const alreadyRegistered = battleRegistrations.some(
+  r => r.battle === "current" && r.tier === currentTierCode
+);
+
+
   // 2. Progress UI
   updateUIProgress(profile.micro_progress || 0);
 
-  // 3. Battles UI
-  const hasPaidTier = userTiers.some(t => ["199", "999", "9999"].includes(t));
-  const battleCount = profile.battle_count || 0;
+ const hasPaidTier = userTiers.some(t =>
+  ["199", "999", "9999"].includes(t)
+);
 
-  if (hasPaidTier) {
-    document.getElementById("battle-status").textContent = battleCount > 0 ? `${battleCount} Joined` : "Eligible";
-    document.getElementById("battle-status").style.color = "var(--success)";
-    document.getElementById("battle-description").textContent = "You can register for battles";
-  } else {
-    document.getElementById("battle-status").textContent = "Locked";
-    document.getElementById("battle-description").textContent = "Upgrade to Access Pass or higher";
-  }
+
+
+const battleStatusEl = document.getElementById("battle-status");
+const battleDescEl = document.getElementById("battle-description");
+const battleBtn = document.querySelector(
+  '.dashboard-card a[href="/battle-register"]'
+);
+
+if (!hasPaidTier) {
+  battleStatusEl.textContent = "Locked";
+  battleDescEl.textContent = "Upgrade to Access Pass or higher";
+  battleStatusEl.style.color = "var(--danger)";
+  battleBtn.textContent = "Upgrade Tier";
+}
+
+else if (alreadyRegistered) {
+  battleStatusEl.textContent = "Registered";
+  battleDescEl.textContent =
+    `Already registered using your ${division.toUpperCase()} tier`;
+  battleStatusEl.style.color = "var(--success)";
+  battleBtn.textContent = "View Battle";
+}
+
+else {
+  battleStatusEl.textContent = "Eligible";
+  battleDescEl.textContent = "You can register for battles";
+  battleStatusEl.style.color = "var(--success)";
+  battleBtn.textContent = "Register for Battle";
+}
+
 
   // 4. Circle UI
   const isCircle = userTiers.includes("9999");

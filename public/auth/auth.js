@@ -10,6 +10,7 @@ async function signup() {
   const btn = document.querySelector("button");
 
   msg.textContent = "";
+  msg.style.color = "";
   btn.disabled = true;
   btn.textContent = "Creating account...";
 
@@ -26,31 +27,35 @@ async function signup() {
     return;
   }
 
-  /* ✅ SEND REGISTRATION SUCCESS EMAIL (ONLY ON SIGNUP) */
+  /* ✅ SEND WELCOME EMAIL */
   if (data?.user) {
     try {
-     await fetch(`${ENV.BACKEND_ORIGIN}/api/auth/signup-complete`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    userId: data.user.id,
-    email: data.user.email
-  })
-});
-
+      await fetch(`${ENV.BACKEND_ORIGIN}/api/auth/signup-complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: data.user.id,
+          email: data.user.email
+        })
+      });
     } catch (e) {
       console.error("Signup email failed", e);
     }
   }
 
-  /* ✅ SUCCESS MESSAGE */
+  /* ✅ CLEAR CONFIRMATION MESSAGE */
   msg.style.color = "green";
-  msg.textContent = "🎉 Registration successful! Redirecting to dashboard…";
+  msg.innerHTML = `
+    ✅ <strong>Thank you for registering successfully!</strong><br/>
+    Your account has been created. Redirecting to your dashboard...
+  `;
 
+  /* ⏳ Redirect AFTER user sees confirmation */
   setTimeout(() => {
     window.location.href = "/dashboard";
-  }, 2000);
+  }, 2500);
 }
+
 
 /* ======================
    LOGIN (Updated)
@@ -66,49 +71,45 @@ async function login() {
     return;
   }
 
-  msg.textContent = "Checking account..."; 
+  msg.textContent = "Logging in...";
   msg.style.color = "gray";
 
   try {
-    /* 1️⃣ STEP ONE: CHECK DATABASE FOR EMAIL */
-    const checkRes = await fetch(`https://portrait-intelligence-lab-backend.onrender.com/api/auth/check-email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
-
-    const checkData = await checkRes.json();
-
-    // If the backend explicitly says the email does not exist
-    if (checkData.exists === false) {
-      msg.style.color = "red";
-      msg.textContent = "This email is not registered with us. Please create an account.";
-      return; // 🛑 STOP HERE. Do not call Supabase.
-    }
-
-    /* 2️⃣ STEP TWO: EMAIL EXISTS, NOW CHECK PASSWORD */
-    msg.textContent = "Verifying password...";
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
 
     if (error) {
+      const errorMessage = error.message.toLowerCase();
+
+      // ❌ Email not registered OR invalid credentials
+      if (
+        errorMessage.includes("invalid login") ||
+        errorMessage.includes("user not found")
+      ) {
+        msg.style.color = "red";
+        msg.textContent =
+          "Invalid credentials. Please register first if you don’t have an account.";
+        return;
+      }
+
+      // ❌ Other auth errors
       msg.style.color = "red";
-      
-      msg.textContent = "Invalid email or password. Please check your credentials and try again."; 
+      msg.textContent = "Invalid credentials. Please check your email or password.";
       return;
     }
 
-    /* 3️⃣ SUCCESS */
+    // ✅ SUCCESS
     window.location.href = "/dashboard";
 
   } catch (err) {
-    console.error("Login process error:", err);
+    console.error("Login error:", err);
     msg.style.color = "red";
-    msg.textContent = "Server error. Please try again later.";
+    msg.textContent = "Something went wrong. Please try again.";
   }
 }
+
 
 
 

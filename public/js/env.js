@@ -8,6 +8,6 @@ export const ENV = {
 
   BACKEND_ORIGIN:
     location.hostname === "localhost"
-      ? "http://localhost:5000"
+      ? "https://portrait-intelligence-lab-backend.onrender.com"
       : "https://portrait-intelligence-lab-backend.onrender.com"
 };

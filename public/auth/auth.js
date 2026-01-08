@@ -53,55 +53,63 @@ async function signup() {
 }
 
 /* ======================
-   LOGIN
+   LOGIN (Updated)
 ====================== */
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const msg = document.getElementById("msg");
 
-  msg.textContent = "";
-  msg.style.color = "red";
-
   if (!email || !password) {
     msg.textContent = "Please enter both email and password.";
+    msg.style.color = "red";
     return;
   }
 
-  // 🔐 Attempt login FIRST
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+  msg.textContent = "Checking account..."; 
+  msg.style.color = "gray";
 
-  if (!error) {
-    window.location.href = "/dashboard";
-    return;
-  }
-
-  // ❌ Login failed → check if email exists
   try {
-    const res = await fetch(
-      `${ENV.BACKEND_ORIGIN}/api/auth/check-email`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      }
-    );
+    /* 1️⃣ STEP ONE: CHECK DATABASE FOR EMAIL */
+    const checkRes = await fetch(`${ENV.BACKEND_ORIGIN}/api/auth/check-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
 
-    const data = await res.json();
+    const checkData = await checkRes.json();
 
-    if (!data.exists) {
-      msg.textContent =
-        "This email is not registered with us. Please register first.";
-    } else {
-      msg.textContent = "Invalid credentials.";
+    // If the backend explicitly says the email does not exist
+    if (checkData.exists === false) {
+      msg.style.color = "red";
+      msg.textContent = "This email is not registered with us. Please create an account.";
+      return; // 🛑 STOP HERE. Do not call Supabase.
     }
-  } catch {
-    msg.textContent = "Something went wrong. Please try again.";
+
+    /* 2️⃣ STEP TWO: EMAIL EXISTS, NOW CHECK PASSWORD */
+    msg.textContent = "Verifying password...";
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      msg.style.color = "red";
+      // Since the email check passed, we know the issue is the password
+      msg.textContent = "Wrong password. Please try again."; 
+      return;
+    }
+
+    /* 3️⃣ SUCCESS */
+    window.location.href = "/dashboard";
+
+  } catch (err) {
+    console.error("Login process error:", err);
+    msg.style.color = "red";
+    msg.textContent = "Server error. Please try again later.";
   }
 }
+
 
 
 window.signup = signup;

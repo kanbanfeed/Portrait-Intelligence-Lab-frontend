@@ -71,7 +71,7 @@ async function login() {
 
   try {
     /* 1️⃣ STEP ONE: CHECK DATABASE FOR EMAIL */
-    const checkRes = await fetch(`${ENV.BACKEND_ORIGIN}/api/auth/check-email`, {
+    const checkRes = await fetch(`https://portrait-intelligence-lab-backend.onrender.com/api/auth/check-email`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
@@ -95,8 +95,8 @@ async function login() {
 
     if (error) {
       msg.style.color = "red";
-      // Since the email check passed, we know the issue is the password
-      msg.textContent = "Wrong password. Please try again."; 
+      
+      msg.textContent = "Invalid email or password. Please check your credentials and try again."; 
       return;
     }
 

@@ -29,14 +29,24 @@ async function signup() {
   /* ✅ SEND REGISTRATION SUCCESS EMAIL (ONLY ON SIGNUP) */
   if (data?.user) {
     try {
-     await fetch(`${ENV.BACKEND_ORIGIN}/api/auth/signup-complete`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    userId: data.user.id,
-    email: data.user.email
-  })
-});
+   const res = await fetch(
+  `${ENV.BACKEND_ORIGIN}/api/auth/signup-complete`,
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: data.user.id,
+      email: data.user.email
+    })
+  }
+);
+
+const result = await res.json();
+
+if (!res.ok || !result.success) {
+  console.error("Signup email API failed:", result);
+}
+
 
     } catch (e) {
       console.error("Signup email failed", e);

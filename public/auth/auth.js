@@ -29,24 +29,14 @@ async function signup() {
   /* ✅ SEND REGISTRATION SUCCESS EMAIL (ONLY ON SIGNUP) */
   if (data?.user) {
     try {
-   const res = await fetch(
-  `${ENV.BACKEND_ORIGIN}/api/auth/signup-complete`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId: data.user.id,
-      email: data.user.email
-    })
-  }
-);
-
-const result = await res.json();
-
-if (!res.ok || !result.success) {
-  console.error("Signup email API failed:", result);
-}
-
+     await fetch(`${ENV.BACKEND_ORIGIN}/api/auth/signup-complete`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    userId: data.user.id,
+    email: data.user.email
+  })
+});
 
     } catch (e) {
       console.error("Signup email failed", e);
@@ -71,21 +61,48 @@ async function login() {
   const msg = document.getElementById("msg");
 
   msg.textContent = "";
+  msg.style.color = "red";
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  if (!email || !password) {
+    msg.textContent = "Please enter both email and password.";
+    return;
+  }
+
+  // 🔐 Attempt login FIRST
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
-  if (error) {
-    msg.textContent = "Invalid email or password.";
-    msg.style.color = "red";
+  if (!error) {
+    window.location.href = "/dashboard";
     return;
   }
 
-  // ❌ DO NOT SEND REGISTRATION EMAIL ON LOGIN
-  window.location.href = "/dashboard";
+  // ❌ Login failed → check if email exists
+  try {
+    const res = await fetch(
+      `${ENV.BACKEND_ORIGIN}/api/auth/check-email`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!data.exists) {
+      msg.textContent =
+        "This email is not registered with us. Please register first.";
+    } else {
+      msg.textContent = "Invalid credentials.";
+    }
+  } catch {
+    msg.textContent = "Something went wrong. Please try again.";
+  }
 }
+
 
 window.signup = signup;
 window.login = login;

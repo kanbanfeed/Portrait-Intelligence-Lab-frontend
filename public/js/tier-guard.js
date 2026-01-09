@@ -91,38 +91,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ======================
   // STRIPE CHECKOUT
   // ======================
-  btn.onclick = async () => {
-    btn.disabled = true;
-    btn.textContent = "Redirecting…";
+ btn.onclick = async () => {
+  btn.disabled = true;
+  btn.textContent = "Redirecting…";
 
-    // Safety fallback (if user returns silently)
-    setTimeout(resetButton, 8000);
-const { data: { user } } = await supabase.auth.getUser();
-    try {
-      const res = await fetch(
-        "https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tier,
-            supabaseUserId: userId,
-            userEmail: user.email
-          })
-        }
-      );
+  setTimeout(resetButton, 8000);
 
-      if (!res.ok) throw new Error("Checkout request failed");
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
 
-      const data = await res.json();
-      if (!data.url) throw new Error("No checkout URL");
-
-      window.location.href = data.url;
-
-    } catch (err) {
-      console.error("Checkout error:", err);
-      resetButton();
-      alert("Something went wrong. Please try again.");
+    if (!user || !user.email) {
+      alert("Session expired. Please log in again.");
+      window.location.href = "/auth/login.html";
+      return;
     }
-  };
+
+    const res = await fetch(
+      "https://portrait-intelligence-lab-backend.onrender.com/api/stripe/create-checkout",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tier,
+          supabaseUserId: user.id,
+          userEmail: user.email
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok || !data.url) {
+      throw new Error(data.error || "Checkout failed");
+    }
+
+    window.location.href = data.url;
+
+  } catch (err) {
+    console.error("Checkout error:", err);
+    resetButton();
+    alert("Something went wrong. Please try again.");
+  }
+};
+
 });

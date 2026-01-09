@@ -19,13 +19,25 @@ async function signup() {
     password
   });
 
-  if (error) {
+ if (error) {
+  msg.style.color = "red";
+
+  // ✅ Custom message for existing users
+  if (
+    error.message.toLowerCase().includes("already registered") ||
+    error.message.toLowerCase().includes("user already exists")
+  ) {
+    msg.textContent =
+      "An account with this email already exists. Log in to continue.";
+  } else {
     msg.textContent = error.message;
-    msg.style.color = "red";
-    btn.disabled = false;
-    btn.textContent = "Sign Up";
-    return;
   }
+
+  btn.disabled = false;
+  btn.textContent = "Sign Up";
+  return;
+}
+
 
   /* ✅ SEND WELCOME EMAIL */
   if (data?.user) {
